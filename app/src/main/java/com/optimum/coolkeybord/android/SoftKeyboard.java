@@ -126,7 +126,6 @@ public class SoftKeyboard extends InputMethodService
     // Keyboards (not subtypes)
     boolean gifSupported = false;
     private LatinKeyboard mQwertyKeyboard;
-
     private LatinKeyboard mCurKeyboard;
     public static String mActiveKeyboard;
     //    private EmojiconsPopup popupWindow = null;
@@ -319,7 +318,13 @@ public class SoftKeyboard extends InputMethodService
                 flag, null);
 
         // Switch back to the default keyboard
-        switchToDefaultKeyboard();
+
+        boolean isDefaultKeyboard = settingSesson.switchKeyboardToDefault();
+        if(isDefaultKeyboard)
+        {
+            switchToDefaultKeyboard();
+        }
+
 //        getCurrentInputConnection().commitText("sdfsd",1);
     }
 
@@ -1322,7 +1327,7 @@ public class SoftKeyboard extends InputMethodService
                                         ic.finishComposingText();
                                     }
 
-                                    ByteBuffer byteBuffer = gifDrawable.getBuffer();
+                                    ByteBuffer byteBuffer = gifDrawable.getBuffer().duplicate();
                                     FileOutputStream output;
                                     try {
                                         imagesDir = new File(getFilesDir(), "sendgifs");
@@ -1335,10 +1340,10 @@ public class SoftKeyboard extends InputMethodService
 //                                        mGifFile = File.createTempFile("gifitem", ".gif", outputDir);
 
                                         output = new FileOutputStream(mGifFile);
+                                        byteBuffer.rewind();
                                         byte[] bytes = new byte[byteBuffer.remaining()];
                                         byteBuffer.get(bytes);
-                                        ( (ByteBuffer)  byteBuffer.duplicate().clear()  ).get(bytes);
-                                        output.write(bytes, 0, bytes.length);
+                                        output.write(bytes);
                                         output.close();
                                         SoftKeyboard.this.doCommitContent(mGifFile );
 
